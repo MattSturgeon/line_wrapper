@@ -1,5 +1,6 @@
 line_wrapper_sources = [
   'main.c',
+  'line-wrapper.c',
 ]
 
 line_wrapper_deps = [
