@@ -14,6 +14,18 @@
             ],
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "build debug meson"
+        },
+        {
+            "name": "Test a string",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/src/line-wrapper",
+            "args": [
+                "--use-hyphens",
+                "Test arguments are cool you know, especially when the line gets really reaaalllllllyreallllllyreallllllylonglikethisoneisstartingtoallyandlongandlongandlongandlong,and then we should be on a new-line that itself might not wrap yet..."
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build current config"
         }
     ]
 }
