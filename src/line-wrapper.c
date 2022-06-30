@@ -17,15 +17,11 @@ gchar *wrap_line(gchar *start, gsize length, gchar *suffix)
 
   if (input_len > 0)
   {
-    gsize bytes = memcpy(buffer, start, input_len * sizeof(gchar));
-    g_print("copied %ld bytes\n", bytes);
-    // FIXME handle error
+    memcpy(buffer, start, input_len * sizeof(gchar));
   }
 
   if (suffix_len > 0){
-    gsize bytes = memcpy(buffer + input_len, suffix, suffix_len * sizeof(gchar));
-    g_print("copied %ld bytes\n", bytes);
-    // FIXME handle error
+    memcpy(buffer + input_len, suffix, suffix_len * sizeof(gchar));
   }
 
   buffer[length] = '\0';
