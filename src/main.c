@@ -22,7 +22,7 @@
 #include <glib.h>
 #include <stdlib.h>
 
-
+#define TEST_STRING "\n\nTest arguments are cool you know, especially when the line gets really reaaalllllllyreallllllyreallllllylonglikethisoneisstartingtoallyandlongandlongandlongandlong,and then we should be on a new-line that itself might not wrap yet...\nI wonder\nhow it will\n\n\nbehave with a bunch of \n  random newlines   \n   and spaces... \n\n"
 
 gint
 main (gint   argc,
@@ -56,18 +56,21 @@ main (gint   argc,
       return EXIT_SUCCESS;
     }
 
+  gchar *input = NULL;
   if (argc < 2)
     {
-      g_printerr ("No input provided\n");
-      return EXIT_FAILURE;
+      g_printerr ("No input provided, using default test string\n");
+      input = TEST_STRING;
+    }
+  else
+    {
+      input = argv[1];
     }
 
-  g_print("Wrapping \"%s\"...\n", argv[1]);
-  g_print("\n\n[STARTING]\n");
+  g_print("Wrapping \"%s\"...\n", input);
 
-  wrapped_lines = wrap_lines (argv[1], line_length, hyphons_if_wrap_impossible);
+  wrapped_lines = wrap_lines (input, line_length, hyphons_if_wrap_impossible);
 
-  g_print("\n\n[FINISHED]\n");
   g_print("Wrapped into %d lines:\n", wrapped_lines->len);
 
   for (guint i = 0; i < wrapped_lines->len; i++)
@@ -75,6 +78,10 @@ main (gint   argc,
       gchar *line = g_ptr_array_index (wrapped_lines, i);
       g_print("[%d]: \"%s\"\n", i, line);
     }
+
+  g_print("Freeing result\n");
+
+  free_wrapped_lines(wrapped_lines);
 
 
 

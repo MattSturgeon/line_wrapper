@@ -6,14 +6,7 @@ gchar *wrap_line(gchar *start, gsize length, gchar *suffix)
 {
   gsize suffix_len = strlen(suffix);
   gsize input_len = length - suffix_len;
-  gchar *buffer = malloc((length + 1) * sizeof(gchar));
-  // FIXME handle error
-
-  g_print("wrap_line: start %p, length %ld, input_len %ld, suffix_len %ld\n",
-    start,
-    length,
-    input_len,
-    suffix_len);
+  gchar *buffer = g_malloc((length + 1) * sizeof(gchar));
 
   if (input_len > 0)
   {
@@ -33,46 +26,42 @@ GPtrArray *wrap_lines(gchar *input, gsize line_length, gboolean hyphons_if_wrap_
 {
   GPtrArray *array;
   gchar *last_wrapped_at;
-  gchar *last_whitespace;
-  gboolean replace_whitespace;
-  gsize current_line_length;
+  gchar *candidate_wrap_at;
+  gboolean whitespace = NULL;
 
+  array = g_ptr_array_sized_new(16);
   last_wrapped_at = input;
-  last_whitespace = NULL;
-  replace_whitespace = FALSE;
-
-  array = g_ptr_array_new();
 
   for (gsize i = 0; TRUE; i++)
   {
-    current_line_length = &input[i] - last_wrapped_at;
-    // g_print("[%ld]: current_line_length %ld (max %ld)\n", i, current_line_length, line_length);
+    gsize current_line_length = &input[i] - last_wrapped_at;
 
-    // Check if whitespace
+    // Keep track of the most recent char that we could wrap on
     switch(input[i])
     {
-      // TODO add more whitespace
+      // TODO add more whitespace?
       case '\0':
       case '\n':
       case ' ': {
-        last_whitespace = &input[i];
-        replace_whitespace = TRUE;
+        candidate_wrap_at = &input[i];
+        whitespace = TRUE;
       } break;
       case '-': {
-        last_whitespace = &input[i];
-        replace_whitespace = FALSE;
+        // FIXME, we want to preserve the '-' char in the copied string
+        candidate_wrap_at = &input[i];
+        whitespace = FALSE;
       } break;
     }
 
-    if (!input[i] || current_line_length >= line_length)
+    if (!input[i] || input[i] == '\n' || current_line_length >= line_length)
     {
-      gsize final_line_length;
       gchar *wrap_at;
       gchar *line;
       gchar *suffix = "";
+      gsize suffix_len = 0;
 
-      wrap_at = last_whitespace;
-      if (wrap_at < last_wrapped_at)
+      wrap_at =  candidate_wrap_at;
+      if (candidate_wrap_at < last_wrapped_at)
       {
         // No whitespace since last wrap...
         if (hyphons_if_wrap_impossible)
@@ -82,23 +71,24 @@ GPtrArray *wrap_lines(gchar *input, gsize line_length, gboolean hyphons_if_wrap_
         }
         else continue;
       }
-      
-      final_line_length = wrap_at - last_wrapped_at;
-      g_print("[%ld] final_line_length %ld, suffix \"%s\"\n", i, final_line_length, suffix);
 
-      line = wrap_line(last_wrapped_at, final_line_length, suffix);
-      //FIXME chedck error
+      // Copy the wrapped line to the output array
+      g_ptr_array_add(array, wrap_line(last_wrapped_at, wrap_at - last_wrapped_at, suffix));
 
+      // Update last_wrapped_at pointer, then correct for any replaced chars
       last_wrapped_at = wrap_at;
 
-      if (replace_whitespace)
+      suffix_len = strlen(suffix);
+      if (suffix_len > 0)
       {
+        // Move pointer to where the suffix was inserted
+        last_wrapped_at -= suffix_len;
+      }
+      else
+      {
+        // Move pointer past the whitespace char we just wrapped on
         last_wrapped_at++;
       }
-
-      g_print("line: \"%s\"\n", line);
-
-      g_free(line);// FIXME move up a scope or two
     }
 
     if (!input[i])
@@ -109,5 +99,18 @@ GPtrArray *wrap_lines(gchar *input, gsize line_length, gboolean hyphons_if_wrap_
   }
 
   return array;
+}
+
+void free_wrapped_lines(GPtrArray *array)
+{
+  if (!array) return;
+
+  // Free each pointer
+  for (gsize i = 0; i < array->len; i++)
+  {
+    g_free(g_ptr_array_index(array, i));
+  }
+
+  g_ptr_array_free(array, TRUE);
 }
 
