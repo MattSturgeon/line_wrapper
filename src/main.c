@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "line_wrapper-config.h"
+#include "config.h"
 #include "line-wrapper.h"
 
 #include <glib.h>

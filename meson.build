@@ -12,7 +12,7 @@ project('line_wrapper', 'c',
 config_h = configuration_data()
 config_h.set_quoted('PACKAGE_VERSION', meson.project_version())
 configure_file(
-  output: 'line_wrapper-config.h',
+  output: 'config.h',
   configuration: config_h,
 )
 add_project_arguments([
