@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-gchar *wrap_line(gchar *start, gsize length, gchar *suffix)
+gchar *wrap_line(const gchar *start, const gsize length, const gchar *suffix)
 {
   gsize suffix_len = strlen(suffix);
   gsize input_len = length - suffix_len;
@@ -22,7 +22,7 @@ gchar *wrap_line(gchar *start, gsize length, gchar *suffix)
   return buffer;
 }
 
-GPtrArray *wrap_lines(gchar *input, gsize line_length, gboolean hyphons_if_wrap_impossible)
+GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolean hyphons_if_wrap_impossible)
 {
   GPtrArray *array;
   gchar *last_wrapped_at;
