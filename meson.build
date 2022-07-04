@@ -21,4 +21,4 @@ add_project_arguments([
 
 
 subdir('src')
-
+subdir('test')
