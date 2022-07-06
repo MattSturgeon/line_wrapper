@@ -60,11 +60,12 @@ GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolea
   GPtrArray *array;
   gchar *last_wrapped_at;
   wrap_candidate candidate = {NULL, FALSE};
+  gsize i = 0;
 
   array = g_ptr_array_sized_new(16);
   last_wrapped_at = input;
 
-  for (gsize i = 0; TRUE; i++)
+  do
   {
     gsize current_line_length = &input[i] - last_wrapped_at;
 
@@ -108,13 +109,7 @@ GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolea
         last_wrapped_at++;
       }
     }
-
-    if (!input[i])
-    {
-      // Reached the end of the string
-      break;
-    }
-  }
+  } while (input[i++]);
 
   return array;
 }
