@@ -10,11 +10,11 @@ gchar *wrap_line(const gchar *start, const gsize length, const gchar *suffix)
 
   if (input_len > 0)
   {
-    memcpy(buffer, start, input_len * sizeof(gchar));
+    strncpy(buffer, start, input_len);
   }
 
   if (suffix_len > 0){
-    memcpy(buffer + input_len, suffix, suffix_len * sizeof(gchar));
+    strncpy(buffer + input_len, suffix, suffix_len);
   }
 
   buffer[length] = '\0';
