@@ -2,6 +2,12 @@
 
 #include <string.h>
 
+// A small struct to keep track of where we might wrap the line
+typedef struct {
+  gchar *wrap_point;
+  gboolean replace;
+} wrap_candidate;
+
 gchar *wrap_line(const gchar *start, const gsize length, const gchar *suffix)
 {
   gsize suffix_len = strlen(suffix);
@@ -22,12 +28,38 @@ gchar *wrap_line(const gchar *start, const gsize length, const gchar *suffix)
   return buffer;
 }
 
+// Update the most recent char that we could wrap on...
+void check_and_update_wrappable_char(wrap_candidate *candidate, const gchar *input, gsize index)
+{
+    // First check if we can wrap after the previous char
+    if (index > 0) {
+      switch(input[index-1])
+      {
+        case '-': {
+          candidate->wrap_point = &input[index];
+          candidate->replace = FALSE;
+        } break;
+      }
+    }
+
+    // Then check if we can wrap on the current char
+    switch(input[index])
+    {
+      // TODO add more whitespace?
+      case '\0':
+      case '\n':
+      case ' ': {
+          candidate->wrap_point = &input[index];
+          candidate->replace = TRUE;
+      } break;
+    }
+}
+
 GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolean hyphons_if_wrap_impossible)
 {
   GPtrArray *array;
   gchar *last_wrapped_at;
-  gchar *candidate_wrap_at;
-  gboolean whitespace = NULL;
+  wrap_candidate candidate = {NULL, FALSE};
 
   array = g_ptr_array_sized_new(16);
   last_wrapped_at = input;
@@ -37,21 +69,7 @@ GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolea
     gsize current_line_length = &input[i] - last_wrapped_at;
 
     // Keep track of the most recent char that we could wrap on
-    switch(input[i])
-    {
-      // TODO add more whitespace?
-      case '\0':
-      case '\n':
-      case ' ': {
-        candidate_wrap_at = &input[i];
-        whitespace = TRUE;
-      } break;
-      case '-': {
-        // FIXME, we want to preserve the '-' char in the copied string
-        candidate_wrap_at = &input[i];
-        whitespace = FALSE;
-      } break;
-    }
+    check_and_update_wrappable_char(&candidate, input, i);
 
     if (!input[i] || input[i] == '\n' || current_line_length >= line_length)
     {
@@ -60,10 +78,10 @@ GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolea
       gchar *suffix = "";
       gsize suffix_len = 0;
 
-      wrap_at =  candidate_wrap_at;
-      if (candidate_wrap_at < last_wrapped_at)
+      wrap_at = candidate.wrap_point;
+      if (wrap_at < last_wrapped_at)
       {
-        // No whitespace since last wrap...
+        // No wrap candidates since last wrap...
         if (hyphons_if_wrap_impossible)
         {
           suffix = "-";
@@ -84,7 +102,7 @@ GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolea
         // Move pointer to where the suffix was inserted
         last_wrapped_at -= suffix_len;
       }
-      else
+      else if (candidate.replace)
       {
         // Move pointer past the whitespace char we just wrapped on
         last_wrapped_at++;

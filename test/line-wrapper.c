@@ -6,6 +6,8 @@
 
 #define A_REALLY_LONG_LINE "A veryveryverylonglinewith_no_spacesshouldonlywrapifhyphonateisenabled don't you think"
 #define OVER_ONE_LINE "This example will probably be around 100 chars long by the time I run out of example text to write..."
+#define A_STRING_WITH_NEWLINES "\nThis example has a leading newline as well as a trailing newline\n"
+#define A_STRING_WITH_HYPHENS "This example has a hyphen in a good-place to wrap the line"
 
 typedef struct {
   gsize line_len;
@@ -117,6 +119,22 @@ gint main (gint argc, gchar *argv[])
     "you think",
   });
   g_test_add_data_func("/line-wrapper/test-do-hyphonate", test_data, basic_test_with_data);
+
+  test_data = build_test_data(20, TRUE, A_STRING_WITH_NEWLINES, 6, (const char*[]){
+    "",
+    "This example has a",
+    "leading newline as",
+    "well as a trailing",
+    "newline",
+    "",
+  });
+  g_test_add_data_func("/line-wrapper/test-handle-newlines", test_data, basic_test_with_data);
+
+  test_data = build_test_data(40, TRUE, A_STRING_WITH_HYPHENS, 2, (const char*[]){
+    "This example has a hyphen in a good-",
+    "place to wrap the line",
+  });
+  g_test_add_data_func("/line-wrapper/test-handle-hyphens", test_data, basic_test_with_data);
 
   return g_test_run ();
 }
