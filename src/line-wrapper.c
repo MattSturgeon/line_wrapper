@@ -1,25 +1,26 @@
-#include "line-wrapper.h"
-
 #include <string.h>
+
+#include "line-wrapper.h"
 
 // A small struct to keep track of where we might wrap the line
 typedef struct {
-  gchar *wrap_point;
+  gchar* wrap_point;
   gboolean replace;
 } wrap_candidate;
 
-gchar *wrap_line(const gchar *start, const gsize length, const gchar *suffix)
+gchar* wrap_line(const gchar* start, const gsize length, const gchar* suffix)
 {
   gsize suffix_len = strlen(suffix);
   gsize input_len = length - suffix_len;
-  gchar *buffer = g_malloc((length + 1) * sizeof(gchar));
+  gchar* buffer = g_malloc((length + 1) * sizeof(gchar));
 
   if (input_len > 0)
   {
     strncpy(buffer, start, input_len);
   }
 
-  if (suffix_len > 0){
+  if (suffix_len > 0)
+  {
     strncpy(buffer + input_len, suffix, suffix_len);
   }
 
@@ -29,36 +30,42 @@ gchar *wrap_line(const gchar *start, const gsize length, const gchar *suffix)
 }
 
 // Update the most recent char that we could wrap on...
-void check_and_update_wrappable_char(wrap_candidate *candidate, const gchar *input, gsize index)
+void check_and_update_wrappable_char(wrap_candidate* candidate, const gchar* input, gsize index)
 {
-    // First check if we can wrap after the previous char
-    if (index > 0) {
-      switch(input[index-1])
-      {
-        case '-': {
-          candidate->wrap_point = &input[index];
-          candidate->replace = FALSE;
-        } break;
-      }
-    }
-
-    // Then check if we can wrap on the current char
-    switch(input[index])
+  // First check if we can wrap after the previous char
+  if (index > 0)
+  {
+    switch (input[index - 1])
     {
-      // TODO add more whitespace?
-      case '\0':
-      case '\n':
-      case ' ': {
-          candidate->wrap_point = &input[index];
-          candidate->replace = TRUE;
-      } break;
+    case '-':
+      {
+        candidate->wrap_point = &input[index];
+        candidate->replace = FALSE;
+      }
+      break;
     }
+  }
+
+  // Then check if we can wrap on the current char
+  switch (input[index])
+  {
+  // TODO add more whitespace?
+  case '\0':
+  case '\n':
+  case ' ':
+    {
+      candidate->wrap_point = &input[index];
+      candidate->replace = TRUE;
+    }
+    break;
+  }
 }
 
-GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolean hyphons_if_wrap_impossible)
+GPtrArray*
+wrap_lines(const gchar* input, const gsize line_length, const gboolean hyphons_if_wrap_impossible)
 {
-  GPtrArray *array;
-  gchar *last_wrapped_at;
+  GPtrArray* array;
+  gchar* last_wrapped_at;
   wrap_candidate candidate = {NULL, FALSE};
   gsize i = 0;
 
@@ -74,9 +81,9 @@ GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolea
 
     if (!input[i] || input[i] == '\n' || current_line_length >= line_length)
     {
-      gchar *wrap_at;
-      gchar *line;
-      gchar *suffix = "";
+      gchar* wrap_at;
+      gchar* line;
+      gchar* suffix = "";
       gsize suffix_len = 0;
 
       wrap_at = candidate.wrap_point;
@@ -87,8 +94,8 @@ GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolea
         {
           suffix = "-";
           wrap_at = &input[i];
-        }
-        else continue;
+        } else
+          continue;
       }
 
       // Copy the wrapped line to the output array
@@ -102,8 +109,7 @@ GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolea
       {
         // Move pointer to where the suffix was inserted
         last_wrapped_at -= suffix_len;
-      }
-      else if (candidate.replace)
+      } else if (candidate.replace)
       {
         // Move pointer past the whitespace char we just wrapped on
         last_wrapped_at++;
@@ -114,9 +120,10 @@ GPtrArray *wrap_lines(const gchar *input, const gsize line_length, const gboolea
   return array;
 }
 
-void free_wrapped_lines(GPtrArray *array)
+void free_wrapped_lines(GPtrArray* array)
 {
-  if (!array) return;
+  if (!array)
+    return;
 
   // Free each pointer
   for (gsize i = 0; i < array->len; i++)
@@ -126,4 +133,3 @@ void free_wrapped_lines(GPtrArray *array)
 
   g_ptr_array_free(array, TRUE);
 }
-

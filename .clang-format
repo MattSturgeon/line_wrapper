@@ -1,0 +1,80 @@
+# Reference documentation: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+Language: Cpp
+TabWidth:          8
+UseTab:            Never
+IndentWidth:       2
+ColumnLimit:       100
+MaxEmptyLinesToKeep: 1
+
+# Allow some slightly over-long lines
+# PenaltyExcessCharacter: 1
+
+ReflowComments: true
+
+# No space before perenthesis(), unless control statement e.g. if () or while ()
+SpaceBeforeParens: ControlStatementsExceptControlMacros
+SpacesInParentheses: false
+
+# Include files
+SortIncludes: CaseInsensitive
+IncludeBlocks: Regroup
+IncludeCategories:
+  # Generated config header
+  - Regex:      '"config\.h"'
+    Priority:   -200
+  # Standard library headers
+  - Regex:      '"acutest\.h"'
+    Priority:   -120
+  - Regex:      '<stddef\.h>'
+    Priority:   -110
+  - Regex:      '<.*>'
+    Priority:   -100
+
+  # Main Header 0
+
+  # All other headers
+  - Regex:      '".*"'
+    Priority:   100
+
+# Keep struct definitions seperate
+SeparateDefinitionBlocks: Always
+
+# Indend #ifdef directives
+IndentPPDirectives: AfterHash
+
+# General indent rules:
+IndentCaseBlocks: true
+
+# General line-break rules:
+BreakBeforeBinaryOperators: true
+BreakBeforeTernaryOperators: true
+AlwaysBreakAfterReturnType: None
+BinPackArguments: false
+BinPackParameters: false
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterEnum: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeElse: false
+  BeforeWhile: false
+  AfterControlStatement: true
+  AfterFunction: true
+  SplitEmptyFunction: false
+  IndentBraces: false
+
+# General alignment rules:
+AlignTrailingComments: true
+AlignConsecutiveDeclarations: None
+PointerAlignment: Left
+QualifierAlignment: Left
+AlignAfterOpenBracket: BlockIndent
+AllowShortEnumsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AlignTrailingComments: true
+AlignOperands: AlignAfterOperator
+AlignEscapedNewlines: Right

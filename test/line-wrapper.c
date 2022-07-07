@@ -1,34 +1,41 @@
+#include "config.h"
+
 #include <glib.h>
 #include <locale.h>
 
-#include "config.h"
 #include "../src/line-wrapper.h"
 
-#define A_REALLY_LONG_LINE "A veryveryverylonglinewith_no_spacesshouldonlywrapifhyphonateisenabled don't you think"
-#define OVER_ONE_LINE "This example will probably be around 100 chars long by the time I run out of example text to write..."
-#define A_STRING_WITH_NEWLINES "\nThis example has a leading newline as well as a trailing newline\n"
+#define A_REALLY_LONG_LINE                                                                         \
+  "A veryveryverylonglinewith_no_spacesshouldonlywrapifhyphonateisenabled "                        \
+  "don't you think"
+#define OVER_ONE_LINE                                                                              \
+  "This example will probably be around 100 chars long by the time I run out "                     \
+  "of example text to write..."
+#define A_STRING_WITH_NEWLINES                                                                     \
+  "\nThis example has a leading newline as well as a trailing newline\n"
 #define A_STRING_WITH_HYPHENS "This example has a hyphen in a good-place to wrap the line"
 
 typedef struct {
   gsize line_len;
   gboolean hyphonate;
-  gchar *input;
-  gchar **output;
+  gchar* input;
+  gchar** output;
   gsize output_len;
 } TestData;
 
-static gchar *copy_string(const gchar *source)
+static gchar* copy_string(const gchar* source)
 {
   gsize length = strlen(source);
-  gchar *dest = g_malloc(sizeof(gchar) * (length + 1));
+  gchar* dest = g_malloc(sizeof(gchar) * (length + 1));
   strncpy(dest, source, length + 1);
   dest[length] = '\0';
   return dest;
 }
 
-static TestData *build_test_data(gsize line_len, gboolean hyphonate, gchar *input, gsize output_len, gchar *output[])
+static TestData*
+build_test_data(gsize line_len, gboolean hyphonate, gchar* input, gsize output_len, gchar* output[])
 {
-  TestData *test_data = g_malloc(sizeof(TestData));
+  TestData* test_data = g_malloc(sizeof(TestData));
 
   test_data->line_len = line_len;
   test_data->hyphonate = hyphonate;
@@ -45,7 +52,7 @@ static TestData *build_test_data(gsize line_len, gboolean hyphonate, gchar *inpu
   return test_data;
 }
 
-static void free_test_data(const TestData *test_data)
+static void free_test_data(const TestData* test_data)
 {
   for (gsize i = 0; i < test_data->output_len; i++)
   {
@@ -60,9 +67,9 @@ static void free_test_data(const TestData *test_data)
 
 static void basic_test_with_data(gconstpointer d)
 {
-  const TestData *test_data = d;
+  const TestData* test_data = d;
 
-  const GPtrArray *lines = wrap_lines(test_data->input, test_data->line_len, test_data->hyphonate);
+  const GPtrArray* lines = wrap_lines(test_data->input, test_data->line_len, test_data->hyphonate);
 
   g_assert_cmpuint(test_data->output_len, ==, lines->len);
 
@@ -74,67 +81,111 @@ static void basic_test_with_data(gconstpointer d)
   free_test_data(test_data);
 }
 
-gint main (gint argc, gchar *argv[])
+gint main(gint argc, gchar* argv[])
 {
-  TestData *test_data;
+  TestData* test_data;
 
-  setlocale (LC_ALL, "");
+  setlocale(LC_ALL, "");
 
-  g_test_init (&argc, &argv, NULL);
+  g_test_init(&argc, &argv, NULL);
 
-  test_data = build_test_data(strlen(OVER_ONE_LINE), FALSE, OVER_ONE_LINE, 1, (const char*[]){
-    OVER_ONE_LINE,
-  });
+  test_data = build_test_data(
+      strlen(OVER_ONE_LINE),
+      FALSE,
+      OVER_ONE_LINE,
+      1,
+      (const char*[]){
+          OVER_ONE_LINE,
+      }
+  );
   g_test_add_data_func("/line-wrapper/test-no-break", test_data, basic_test_with_data);
 
-  test_data = build_test_data(80, FALSE, OVER_ONE_LINE, 2, (const char*[]){
-    "This example will probably be around 100 chars long by the time I run out of",
-    "example text to write...",
-  });
+  test_data = build_test_data(
+      80,
+      FALSE,
+      OVER_ONE_LINE,
+      2,
+      (const char*[]){
+          "This example will probably be around 100 chars long by the time I "
+          "run out of",
+          "example text to write...",
+      }
+  );
   g_test_add_data_func("/line-wrapper/test-break-before-80", test_data, basic_test_with_data);
 
-  test_data = build_test_data(20, FALSE, OVER_ONE_LINE, 6, (const char*[]){
-    "This example will",
-    "probably be around",
-    "100 chars long by",
-    "the time I run out",
-    "of example text to",
-    "write...",
-  });
+  test_data = build_test_data(
+      20,
+      FALSE,
+      OVER_ONE_LINE,
+      6,
+      (const char*[]){
+          "This example will",
+          "probably be around",
+          "100 chars long by",
+          "the time I run out",
+          "of example text to",
+          "write...",
+      }
+  );
   g_test_add_data_func("/line-wrapper/test-break-before-20", test_data, basic_test_with_data);
 
-  test_data = build_test_data(20, FALSE, A_REALLY_LONG_LINE, 3, (const char*[]){
-    "A",
-    "veryveryverylonglinewith_no_spacesshouldonlywrapifhyphonateisenabled",
-    "don't you think",
-  });
+  test_data = build_test_data(
+      20,
+      FALSE,
+      A_REALLY_LONG_LINE,
+      3,
+      (const char*[]){
+          "A",
+          "veryveryverylonglinewith_no_"
+          "spacesshouldonlywrapifhyphonateisenabled",
+          "don't you think",
+      }
+  );
   g_test_add_data_func("/line-wrapper/test-dont-hyphonate", test_data, basic_test_with_data);
 
-  test_data = build_test_data(20, TRUE, A_REALLY_LONG_LINE, 6, (const char*[]){
-    "A",
-    "veryveryverylonglin-",
-    "ewith_no_spacesshou-",
-    "ldonlywrapifhyphona-",
-    "teisenabled don't",
-    "you think",
-  });
+  test_data = build_test_data(
+      20,
+      TRUE,
+      A_REALLY_LONG_LINE,
+      6,
+      (const char*[]){
+          "A",
+          "veryveryverylonglin-",
+          "ewith_no_spacesshou-",
+          "ldonlywrapifhyphona-",
+          "teisenabled don't",
+          "you think",
+      }
+  );
   g_test_add_data_func("/line-wrapper/test-do-hyphonate", test_data, basic_test_with_data);
 
-  test_data = build_test_data(20, TRUE, A_STRING_WITH_NEWLINES, 6, (const char*[]){
-    "",
-    "This example has a",
-    "leading newline as",
-    "well as a trailing",
-    "newline",
-    "",
-  });
+  test_data = build_test_data(
+      20,
+      TRUE,
+      A_STRING_WITH_NEWLINES,
+      6,
+      (const char*[]){
+          "",
+          "This example has a",
+          "leading newline as",
+          "well as a trailing",
+          "newline",
+          "",
+      }
+  );
   g_test_add_data_func("/line-wrapper/test-handle-newlines", test_data, basic_test_with_data);
 
-  test_data = build_test_data(40, TRUE, A_STRING_WITH_HYPHENS, 2, (const char*[]){
-    "This example has a hyphen in a good-",
-    "place to wrap the line",
-  });
+  test_data = build_test_data(
+      40,
+      TRUE,
+      A_STRING_WITH_HYPHENS,
+      2,
+      (const char*[]){
+          "This example has a hyphen in a good-",
+          "place to wrap the line",
+      }
+  );
   g_test_add_data_func("/line-wrapper/test-handle-hyphens", test_data, basic_test_with_data);
 
-  return g_test_run ();
+  return g_test_run();
 }
