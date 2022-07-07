@@ -47,7 +47,7 @@
 
 gint main(gint argc, gchar* argv[])
 {
-  g_autoptr(GPtrArray) wrapped_lines = NULL;
+  g_autoptr(Lines) wrapped_lines = NULL;
   g_autoptr(GOptionContext) context = NULL;
   g_autoptr(GError) error = NULL;
   gboolean version = FALSE;
@@ -91,10 +91,8 @@ gint main(gint argc, gchar* argv[])
   g_print("Wrapped into %d lines:\n", wrapped_lines->len);
   for (guint i = 0; i < wrapped_lines->len; i++)
   {
-    gchar* line = g_ptr_array_index(wrapped_lines, i);
+    gchar* line = wrapped_lines->array[i];
     g_print("[%d]: \"%s\"\n", i, line);
   }
-  g_print("Freeing result\n");
-  free_wrapped_lines(wrapped_lines);
   return EXIT_SUCCESS;
 }

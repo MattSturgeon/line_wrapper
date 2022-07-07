@@ -68,14 +68,15 @@ static void free_test_data(const TestData* test_data)
 static void basic_test_with_data(gconstpointer d)
 {
   const TestData* test_data = d;
+  g_autoptr(Lines) lines = NULL;
 
-  const GPtrArray* lines = wrap_lines(test_data->input, test_data->line_len, test_data->hyphonate);
+  lines = wrap_lines(test_data->input, test_data->line_len, test_data->hyphonate);
 
   g_assert_cmpuint(test_data->output_len, ==, lines->len);
 
   for (gsize i = 0; i < lines->len; i++)
   {
-    g_assert_cmpstr(test_data->output[i], ==, g_ptr_array_index(lines, i));
+    g_assert_cmpstr(test_data->output[i], ==, lines->array[i]);
   }
 
   free_test_data(test_data);

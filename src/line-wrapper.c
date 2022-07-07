@@ -61,15 +61,39 @@ void check_and_update_wrappable_char(wrap_candidate* candidate, const gchar* inp
   }
 }
 
-GPtrArray*
+gsize realloc_lines(Lines* lines)
+{
+  gsize new_size = sizeof(gchar*) * (lines->len + 4);
+  lines->array = g_realloc(lines->array, new_size);
+  lines->allocated = new_size;
+}
+
+void add_line(Lines* lines, const gchar* line)
+{
+  gsize required_size = sizeof(gchar*) * (lines->len + 1);
+  if (required_size > lines->allocated)
+  {
+    realloc_lines(lines);
+  }
+
+  lines->array[lines->len++] = line;
+}
+
+Lines*
 wrap_lines(const gchar* input, const gsize line_length, const gboolean hyphons_if_wrap_impossible)
 {
-  GPtrArray* array;
+  Lines* lines = NULL;
   gchar* last_wrapped_at;
   wrap_candidate candidate = {NULL, FALSE};
   gsize i = 0;
 
-  array = g_ptr_array_sized_new(16);
+  // Initialise lines struct
+  lines = g_malloc(sizeof(Lines));
+  lines->len = 0;
+  lines->allocated = 0;
+  lines->array = NULL;
+  realloc_lines(lines);
+
   last_wrapped_at = input;
 
   do
@@ -99,7 +123,7 @@ wrap_lines(const gchar* input, const gsize line_length, const gboolean hyphons_i
       }
 
       // Copy the wrapped line to the output array
-      g_ptr_array_add(array, wrap_line(last_wrapped_at, wrap_at - last_wrapped_at, suffix));
+      add_line(lines, wrap_line(last_wrapped_at, wrap_at - last_wrapped_at, suffix));
 
       // Update last_wrapped_at pointer, then correct for any replaced chars
       last_wrapped_at = wrap_at;
@@ -117,19 +141,20 @@ wrap_lines(const gchar* input, const gsize line_length, const gboolean hyphons_i
     }
   } while (input[i++]);
 
-  return array;
+  return lines;
 }
 
-void free_wrapped_lines(GPtrArray* array)
+void free_lines(Lines* wrapped_lines)
 {
-  if (!array)
+  if (!wrapped_lines)
     return;
 
   // Free each pointer
-  for (gsize i = 0; i < array->len; i++)
+  for (gsize i = 0; i < wrapped_lines->len; i++)
   {
-    g_free(g_ptr_array_index(array, i));
+    g_free(wrapped_lines->array[i]);
   }
 
-  g_ptr_array_free(array, TRUE);
+  g_free(wrapped_lines->array);
+  g_free(wrapped_lines);
 }
