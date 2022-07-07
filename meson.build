@@ -7,8 +7,10 @@ project('line_wrapper', 'c',
                    ],
 )
 
+# Install git hooks during meson configure
+subdir('git-hooks')
 
-
+# Generate config.h with metadata
 config_h = configuration_data()
 config_h.set_quoted('PACKAGE_VERSION', meson.project_version())
 configure_file(
@@ -18,7 +20,6 @@ configure_file(
 add_project_arguments([
   '-I' + meson.project_build_root(),
 ], language: 'c')
-
 
 subdir('src')
 subdir('test')
