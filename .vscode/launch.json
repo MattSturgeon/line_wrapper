@@ -8,23 +8,23 @@
             "name": "Debug with Meson",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/line-wrapper",
+            "program": "${workspaceFolder}/builddir/src/line-wrapper",
             "args": [
                 ""
             ],
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build debug meson"
+            "preLaunchTask": "Meson: Build all targets"
         },
         {
             "name": "Test a string",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/line-wrapper",
+            "program": "${workspaceFolder}/builddir/src/line-wrapper",
             "args": [
                 "--use-hyphens",
             ],
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build current config"
+            "preLaunchTask": "Meson: Build all targets"
         }
     ]
 }

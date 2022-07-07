@@ -1,0 +1,5 @@
+{
+    "mesonbuild.configureOnOpen": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "modificationsIfAvailable"
+}
